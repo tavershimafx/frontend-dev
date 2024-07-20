@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <style>
+        body{
+            position: relative;
+            margin: 0;
+            background-color: #000;
+        }
+
+        .smoke-container{
+            /* border: 1px solid #fff; */
+            width: 400px;
+            height: 400px;
+            display: flex;
+            justify-content: center;
+            position: relative;
+            margin-left: auto;
+            margin-right: auto;
+            overflow: hidden;
+            filter: blur(100px);
+        }
+        .smoke{
+            position: absolute;
+            border: 1px solid #fff;
+            width: 100px;
+            height: 100px;
+            bottom: 0;
+        }
+
+        .abs{
+            position: absolute;
+        }
+
+        .abs-smoke{
+            position: absolute;
+            display: inline-block;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    <div class="smoke-container" id="smoke_container">
+        <!-- <div class="smoke"></div> -->
+    </div>
+
+    <script type="text/javascript">
+        var smoke_container = document.getElementById('smoke_container')
+        var sm_width = smoke_container.clientWidth
+        var sm_height = smoke_container.clientHeight
+
+        // lets just add random numbers between 1 and 100 to the smoke container
+        // at random positions in the container
+
+        let smokeGeneration = setInterval(() => {
+            //create a smoke box
+            let smoke_layer = document.createElement(`div`)
+            smoke_layer.id = `${Math.floor(Math.random() * 10000000)}`
+            smoke_layer.classList.add('abs')
+            smoke_layer.style.width = `${sm_width}px` // lets make the width the same as the container for now
+            smoke_layer.style.height = "50px"
+            //smoke_layer.style.border = "1px solid #fff"
+            smoke_layer.style.bottom = "0";
+
+            
+            smoke_container.append(smoke_layer)
+            scrollSmokeToTop(smoke_layer.id)
+        }, 2000); // after 4sec so the next one overlaps the bottom of the previous by 5px
+        
+       
+        function scrollSmokeToTop(id){
+            let node = document.getElementById(id)
+           
+            let intervalId = setInterval(() => {
+                if (+getActualPx(node.style.bottom) < sm_height){
+                    node.style.bottom = `${+getActualPx(node.style.bottom) + 5}px`
+
+                    // as the layer keeps moving up, change its width randomly
+                    node.style.width = `${getRandomNumber(0, 200)}px`
+                    randomSmoke(id)
+
+                    //refreshSmokeLayer(id)
+                }else if(+getActualPx(node.style.bottom) == sm_height){
+                    node.remove()
+                    clearInterval(intervalId)
+                }
+            }, 600);
+        }
+        
+        /**
+         * Returns the value of a property without the px unit
+         */
+        function getActualPx(dim){
+            return dim.replace('px', '')
+        }
+
+        function refreshSmokeLayer(id){
+            let node = document.getElementById(id)
+            node.innerHTML = ""
+        }
+
+        /**
+         * @param id: The id of its parent
+         * @param width: The width of its parent
+         * @param height: The height of its parent
+         */
+         function randomSmoke(id){
+            // calculate a random position in the container
+            // the position should be in the bounds of this container
+            let node = document.getElementById(id)
+            node.style.backgroundColor = "#ffdd00"
+            node.style.filter = "blur(200px)"
+            node.style.opacity = "0.5"
+
+            for (let i = 0; i < 10; i++) {
+                let x = getRandomNumber(0, getActualPx(node.style.width))
+                let y = getRandomNumber(0, getActualPx(node.style.height))
+                let item = document.createElement(`p`)
+                item.classList.add('abs-smoke')
+                item.append(Math.floor((Math.random() * 10)))
+                item.style.left = `${x}px`
+                item.style.top = `${y}px`
+                node.append(item)
+            }
+        }
+
+        /**
+         * Returns a random number between @param max and @param min with
+         * both @param max and @param min included
+         * @param max The maximum number threshold to return
+         * @param min The minimum number threshold to return
+        */
+        function getRandomNumber(min, max){
+            return Math.random() * (max - min + 1) + min
+        }
+    </script>
+</body>
+</html>
